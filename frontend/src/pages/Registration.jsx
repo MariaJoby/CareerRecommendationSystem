@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   // Example skills & subjects (you can fetch from DB later)
   const skillsList = ["Python", "Java", "SQL", "React", "Data Analysis"];
   const subjectsList = ["Mathematics", "Physics", "Computer Science", "Biology", "Economics"];
@@ -22,6 +24,16 @@ export default function Register() {
       prev.includes(value) ? prev.filter((s) => s !== value) : [...prev, value]
     );
   };
+
+  const handleSubmit = (e) => {
+  e.preventDefault();
+  // You can keep this for later API calls if needed
+  // console.log("Registration data here if needed");
+
+  // Redirect to login page
+  navigate("/login");
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -50,7 +62,7 @@ export default function Register() {
             Fill in your details to get personalized career recommendations
           </p>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700">

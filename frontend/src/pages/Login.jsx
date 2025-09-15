@@ -1,7 +1,23 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // Example login validation (replace with real auth)
+    if (email && password) {
+      // Redirect to dashboard after successful login
+      navigate("/dashboard");
+    } else {
+      alert("Please enter valid credentials");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       {/* Navbar */}
@@ -29,7 +45,7 @@ export default function Login() {
             Login to continue your career journey
           </p>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleLogin}>
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -38,7 +54,10 @@ export default function Login() {
               <input
                 type="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
 
@@ -50,7 +69,10 @@ export default function Login() {
               <input
                 type="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
               />
             </div>
 
