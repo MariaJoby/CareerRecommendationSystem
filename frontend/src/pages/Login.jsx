@@ -6,17 +6,34 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Example login validation (replace with real auth)
-    if (email && password) {
-      // Redirect to dashboard after successful login
-      navigate("/dashboard");
-    } else {
-      alert("Please enter valid credentials");
+  
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const result = await res.json();
+  
+      if (res.ok) {
+        // result.user will have the profile (name, email, skills, etc.)
+        console.log(result.user); // you can inspect this
+        alert(`Welcome ${result.user.name}!`);
+        navigate("/dashboard");
+      } else {
+        alert(result.error || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
     }
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
