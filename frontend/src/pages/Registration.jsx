@@ -25,15 +25,42 @@ export default function Register() {
     );
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
-  // You can keep this for later API calls if needed
-  // console.log("Registration data here if needed");
-
-  // Redirect to login page
-  navigate("/login");
-};
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Collect form data
+    const data = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      password: e.target.password.value,
+      educationLevel: e.target.educationLevel.value,
+      gpa: e.target.gpa.value,
+      skills: selectedSkills,
+      subjects: selectedSubjects,
+    };
+  
+    try {
+      const res = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const result = await res.json();
+  
+      if (res.ok) {
+        alert("Registration successful! Please login.");
+        navigate("/login");
+      } else {
+        alert(result.error || "Registration failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -70,6 +97,7 @@ export default function Register() {
               </label>
               <input
                 type="text"
+                name="name"
                 placeholder="Enter your name"
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -82,6 +110,7 @@ export default function Register() {
               </label>
               <input
                 type="email"
+                name="email"
                 placeholder="Enter your email"
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -94,6 +123,7 @@ export default function Register() {
               </label>
               <input
                 type="password"
+                name="password"
                 placeholder="Enter your password"
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               />
@@ -104,7 +134,10 @@ export default function Register() {
               <label className="block text-sm font-medium text-gray-700">
                 Education Level
               </label>
-              <select className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+              <select
+                name="educationLevel"
+                className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              >
                 <option value="">Select your education level</option>
                 <option value="High School">High School</option>
                 <option value="Undergraduate">Undergraduate</option>
@@ -119,6 +152,7 @@ export default function Register() {
               </label>
               <input
                 type="number"
+                name="gpa"
                 step="0.01"
                 placeholder="Enter your GPA"
                 className="mt-1 w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
