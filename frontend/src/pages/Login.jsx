@@ -1,39 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext"; // make sure the path is correct
+import supabase from "../supabaseClient"; // import your frontend supabase client
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext); // added to store user globally
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-  
-      const result = await res.json();
-  
-      if (res.ok) {
-        // result.user will have the profile (name, email, skills, etc.)
-        console.log(result.user); // you can inspect this
-        alert(`Welcome ${result.user.name}!`);
-        navigate("/dashboard");
+
+      if (error) {
+        alert(error.message);
       } else {
-        alert(result.error || "Login failed");
+        // Store logged-in user in context
+        setUser(data.user);
+
+        // data.user will have the profile (name, email, etc.)
+        console.log(data.user);
+        alert(`Welcome ${data.user.email}!`);
+        navigate("/dashboard");
       }
     } catch (err) {
       console.error(err);
       alert("Server error. Try again later.");
     }
   };
-  
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
