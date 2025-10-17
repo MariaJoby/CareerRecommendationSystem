@@ -36,8 +36,8 @@ exports.registerUser = async (req, res) => {
           skills,
           subjects,
         },
-      ]);
-
+      ])
+      .select();
     if (profileError) {
       console.error("Profile Insert Error:", profileError.message);
       return res.status(400).json({ error: profileError.message });
