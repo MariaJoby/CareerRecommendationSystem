@@ -22,26 +22,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ error: authError.message });
     }
 
-<<<<<<< HEAD
-    // 2️⃣ Insert user profile into 'profiles' table
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        {
-          id: authUser.user.id,  // use Supabase Auth user ID
-          name,
-          email,
-          education_level: educationLevel,
-          gpa,
-          skills,
-          subjects,
-        },
-      ])
-      .select();
-    if (profileError) {
-      console.error("Profile Insert Error:", profileError.message);
-      return res.status(400).json({ error: profileError.message });
-=======
+
     // 2️⃣ Check if profile already exists
     const { data: existingProfile } = await supabase
       .from("profiles")
@@ -69,7 +50,7 @@ exports.registerUser = async (req, res) => {
         console.error("Profile Insert Error:", profileError.message);
         return res.status(400).json({ error: profileError.message });
       }
->>>>>>> c2522da (My local changes)
+
     }
 
     res.status(201).json({ message: "User registered successfully" });
