@@ -1,13 +1,12 @@
-
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-// IMPORTANT: This needs to be the path to your Supabase client file
-const supabase = require('../config/supabaseClient'); 
+const supabase = require('../config/supabaseClient');
 
 const jwtSecret = process.env.JWT_SECRET;
 
-// User Registration Logic with Supabase
+// =============================
+// USER REGISTRATION
+// =============================
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, educationLevel, gpa, skills, subjects } = req.body;
@@ -23,6 +22,7 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ error: authError.message });
     }
 
+<<<<<<< HEAD
     // 2️⃣ Insert user profile into 'profiles' table
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -41,49 +41,82 @@ exports.registerUser = async (req, res) => {
     if (profileError) {
       console.error("Profile Insert Error:", profileError.message);
       return res.status(400).json({ error: profileError.message });
+=======
+    // 2️⃣ Check if profile already exists
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", authUser.user.id)
+      .single();
+
+    // 3️⃣ Insert profile only if it doesn’t exist
+    if (!existingProfile) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .insert([
+          {
+            id: authUser.user.id,
+            name,
+            email,
+            education_level: educationLevel,
+            gpa,
+            skills,
+            subjects,
+          },
+        ]);
+
+      if (profileError) {
+        console.error("Profile Insert Error:", profileError.message);
+        return res.status(400).json({ error: profileError.message });
+      }
+>>>>>>> c2522da (My local changes)
     }
 
-    res.status(201).json({ message: 'User registered successfully', user: profile[0] });
-
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("General Error:", error.message);
-    res.status(500).json({ error: 'Error registering user' });
+    res.status(500).json({ error: "Error registering user" });
   }
 };
 
-// User Login Logic with Supabase
+// =============================
+// USER LOGIN
+// =============================
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({ email, password });
 
-    if (authError) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+    if (authError || !authData.user) {
+      return res.status(400).json({ error: "Invalid credentials" });
     }
 
-    // Fetch profile info from 'profiles' table
+    const user = authData.user || authData.session?.user;
+
     const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authData.user.id)
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
       .single();
 
     if (profileError) {
       console.error("Profile Fetch Error:", profileError.message);
-      return res.status(400).json({ error: profileError.message });
+      return res.status(400).json({ error: "Profile not found" });
     }
 
-    // Optionally create your own JWT
-    const token = jwt.sign({ email, id: authData.user.id }, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ email: user.email, id: user.id }, jwtSecret, {
+      expiresIn: "1h",
+    });
 
-    res.status(200).json({ message: 'Logged in successfully', token, user: profileData });
-
+    res.status(200).json({
+      message: "Logged in successfully",
+      token,
+      user: profileData,
+    });
   } catch (error) {
     console.error("Login Error:", error.message);
-    res.status(500).json({ error: 'Error logging in' });
+    res.status(500).json({ error: "Error logging in" });
   }
 };
