@@ -11,7 +11,8 @@ app.use(express.json());
 
 const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
-
+const careerRoutes = require('./routes/careerRoutes');
+app.use('/api/careers', careerRoutes);
 app.get('/', (req, res) => {
   res.send('Welcome to the backend!');
 });
