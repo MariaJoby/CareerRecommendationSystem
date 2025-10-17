@@ -1,8 +1,10 @@
-// src/pages/CareerRecommendations.jsx
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { UserContext } from "../context/UserContext"; // make sure path is correct
 
 export default function CareerRecommendations() {
+  const { user } = useContext(UserContext);
+
   // Dummy recommendations (replace later with DB/API data)
   const recommendations = [
     {
@@ -47,7 +49,7 @@ export default function CareerRecommendations() {
       {/* Recommendations Section */}
       <main className="flex-grow px-8 py-12">
         <h2 className="text-4xl font-bold text-gray-800 text-center mb-10">
-          Recommended Careers
+          Recommended Careers for {user?.name || "User"}
         </h2>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

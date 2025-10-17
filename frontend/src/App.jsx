@@ -1,4 +1,6 @@
 // src/App.jsx
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -14,28 +16,58 @@ import NewRecommendation from "./pages/NewRecommendation";
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Landing Page */}
-        <Route path="/" element={<Landing />} />
+  <Routes>
+    {/* Landing Page */}
+    <Route path="/" element={<Landing />} />
 
-        {/* Auth Pages */}
-        <Route path="/register" element={<Registration />} />
-        <Route path="/login" element={<Login />} />
+    {/* Auth Pages */}
+    <Route path="/register" element={<Registration />} />
+    <Route path="/login" element={<Login />} />
 
-        {/* User Pages */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route
-          path="/career-recommendations"
-          element={<CareerRecommendations />}
-        />
-        <Route path="/learning-resource" element={<LearningResource />} />
-        <Route
-          path="/new-recommendation"
-          element={<NewRecommendation />}
-        />
-      </Routes>
-    </Router>
+    {/* Protected User Pages */}
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/edit-profile"
+      element={
+        <ProtectedRoute>
+          <EditProfile />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/career-recommendations"
+      element={
+        <ProtectedRoute>
+          <CareerRecommendations />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/learning-resource"
+      element={
+        <ProtectedRoute>
+          <LearningResource />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/new-recommendation"
+      element={
+        <ProtectedRoute>
+          <NewRecommendation />
+        </ProtectedRoute>
+      }
+    />
+  </Routes>
+</Router>
+
   );
 }
 

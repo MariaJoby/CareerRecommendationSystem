@@ -1,7 +1,16 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext"; // make sure the path is correct
 
 export default function Dashboard() {
+  const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setUser(null); // clear the logged-in user
+    navigate("/"); // redirect to landing page
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       {/* Navbar */}
@@ -10,12 +19,12 @@ export default function Dashboard() {
           CareerPath Finder
         </h1>
         <div>
-          <Link
-            to="/"
+          <button
+            onClick={handleLogout}
             className="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition duration-300"
           >
             Logout
-          </Link>
+          </button>
         </div>
       </nav>
 
@@ -31,16 +40,16 @@ export default function Dashboard() {
             Profile Summary
           </h3>
           <p className="text-gray-600">
-            <span className="font-medium">Name:</span> John Doe
+            <span className="font-medium">Name:</span> {user?.name || "N/A"}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Education:</span> B.Tech Computer Science
+            <span className="font-medium">Education:</span> {user?.education || "N/A"}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Skills:</span> Python, React, SQL
+            <span className="font-medium">Skills:</span> {user?.skills?.join(", ") || "N/A"}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Subjects:</span> Data Structures, AI, DBMS
+            <span className="font-medium">Subjects:</span> {user?.subjects?.join(", ") || "N/A"}
           </p>
         </div>
 
