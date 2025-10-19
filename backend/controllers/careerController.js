@@ -11,7 +11,7 @@ const similarity = (a, b) => {
 // Career recommendation logic
 export const getCareerRecommendations = async (req, res) => {
   try {
-    const userId = req.params.user_id;
+    const userId = req.user.id;
 
     // 1️⃣ Fetch user details
     const { data: user, error: userError } = await supabase
