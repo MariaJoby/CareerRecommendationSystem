@@ -24,11 +24,16 @@ exports.registerUser = async (req, res) => {
 
 
     // 2️⃣ Check if profile already exists
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("id", authUser.user.id)
-      .single();
+    const { data: existingProfile, error: existingError } = await supabase
+  .from("profiles")
+  .select("id")
+  .eq("id", authUser.user.id)
+  .maybeSingle();
+
+if (existingError) {
+  console.error("Existing profile check error:", existingError.message);
+  return res.status(400).json({ error: existingError.message });
+}
 
     // 3️⃣ Insert profile only if it doesn’t exist
     if (!existingProfile) {
