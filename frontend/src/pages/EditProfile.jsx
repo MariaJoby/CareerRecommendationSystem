@@ -1,17 +1,66 @@
-import React, { useState } from "react";
+// src/pages/EditProfile.jsx
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+import supabase from "../supabaseClient"; // ✅ Supabase connection
 
 export default function EditProfile() {
-  const navigate = useNavigate(); // ✅ Added for redirect
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
 
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    educationLevel: "B.Tech Computer Science",
-    gpa: "8.5",
-    skills: ["JavaScript", "React"],
-    subjects: ["Data Structures", "DBMS"],
+    name: "",
+    email: "",
+    educationLevel: "",
+    gpa: "",
+    skills: [],
+    subjects: [],
   });
+
+  // ✅ Fetch or create profile data from Supabase when user is logged in
+  useEffect(() => {
+    const fetchOrCreateProfile = async () => {
+      if (user && user.id) {
+        let { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error && error.code !== "PGRST116") { // ignore "no rows found"
+          console.error("Error fetching profile:", error);
+          return;
+        }
+
+        // Create a profile if none exists
+        if (!data) {
+          const { data: newProfile, error: insertError } = await supabase
+            .from("profiles")
+            .insert([{ id: user.id, name: "", email: user.email }])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error("Error creating profile:", insertError);
+            return;
+          }
+
+          data = newProfile;
+        }
+
+        setProfile({
+          name: data.name || "",
+          email: data.email || user.email || "",
+          educationLevel: data.education_level || "",
+          gpa: data.gpa || "",
+          skills: data.skills || [],
+          subjects: data.subjects || [],
+        });
+      }
+    };
+
+    fetchOrCreateProfile();
+  }, [user]);
 
   const allSkills = ["JavaScript", "Python", "React", "SQL", "C++", "Machine Learning"];
   const allSubjects = ["Data Structures", "Algorithms", "DBMS", "Operating Systems", "AI"];
@@ -25,13 +74,33 @@ export default function EditProfile() {
     setProfile({ ...profile, [field]: options });
   };
 
-  const handleSubmit = (e) => {
+  // ✅ Update Supabase profile
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Profile:", profile);
-    // 🔗 TODO: API call to save updates
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          name: profile.name,
+          education_level: profile.educationLevel,
+          gpa: profile.gpa,
+          skills: profile.skills,
+          subjects: profile.subjects,
+        })
+        .eq("id", user.id);
 
-    // Redirect to dashboard after saving
-    navigate("/dashboard");
+      if (error) {
+        console.error("Update error:", error);
+        alert("Failed to update profile");
+      } else {
+        setUser({ ...user, ...profile });
+        alert("Profile updated successfully!");
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    }
   };
 
   return (
@@ -48,7 +117,7 @@ export default function EditProfile() {
           >
             Dashboard
           </Link>
-          </div>
+        </div>
       </nav>
 
       {/* Edit Profile Form */}
@@ -82,6 +151,7 @@ export default function EditProfile() {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
                 required
+                disabled
               />
             </div>
 
