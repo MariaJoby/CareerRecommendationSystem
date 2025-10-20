@@ -12,7 +12,7 @@ import EditProfile from "./pages/EditProfile";
 import CareerRecommendations from "./pages/CareerRecommendations";
 import LearningResource from "./pages/LearningResource";
 import NewRecommendation from "./pages/NewRecommendation";
-
+import AdminPage from "./pages/AdminPage";
 function App() {
   return (
     <Router>
@@ -41,6 +41,7 @@ function App() {
         </ProtectedRoute>
       }
     />
+    <Route path="/admin" element={<AdminPage/>}/>
     <Route
       path="/career-recommendations"
       element={

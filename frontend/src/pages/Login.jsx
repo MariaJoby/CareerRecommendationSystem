@@ -9,31 +9,40 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  const adminEmail = "admin@example.com";
+  const adminPassword = "Admin@123";
 
-      if (error) {
-        alert(error.message);
-      } else {
-        // Store logged-in user in context
-        setUser(data.user);
+  // Check if admin credentials entered
+  if (email === adminEmail && password === adminPassword) {
+    alert("Welcome Admin!");
+    navigate("/admin");
+    return; // stop here (don’t call Supabase)
+  }
 
-        // data.user will have the profile (name, email, etc.)
-        console.log(data.user);
-        alert(`Welcome ${data.user.email}!`);
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Server error. Try again later.");
+  // Otherwise, authenticate normal user with Supabase
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      setUser(data.user);
+      alert(`Welcome ${data.user.email}!`);
+      navigate("/dashboard");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Server error. Try again later.");
+  }
+};
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
