@@ -10,8 +10,9 @@ app.use(cors());
 app.use(express.json());
 
 const authRoutes = require('./routes/authRoutes');
+const careerRoutes = require('./routes/careerRoutes');
 app.use('/api/auth', authRoutes);  // ✅ Correct mounting
-
+app.use('/api/careers', careerRoutes);
 app.get('/', (req, res) => {
   res.send('Welcome to the backend!');
 });

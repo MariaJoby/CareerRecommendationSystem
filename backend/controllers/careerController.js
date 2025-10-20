@@ -1,4 +1,4 @@
-import supabase from "../config/supabaseClient.js";
+const supabase = require("../config/supabaseClient");
 
 // Simple text similarity function
 const similarity = (a, b) => {
@@ -9,11 +9,10 @@ const similarity = (a, b) => {
 };
 
 // Career recommendation logic
-export const getCareerRecommendations = async (req, res) => {
+const getCareerRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // 1️⃣ Fetch user details
     const { data: user, error: userError } = await supabase
       .from("users")
       .select("*")
@@ -23,14 +22,12 @@ export const getCareerRecommendations = async (req, res) => {
     if (userError || !user)
       return res.status(404).json({ error: "User not found" });
 
-    // 2️⃣ Fetch all careers
     const { data: careers, error: careerError } = await supabase
       .from("career")
       .select("*");
 
     if (careerError) throw careerError;
 
-    // 3️⃣ Compute match score for each career
     const recommendations = [];
 
     for (const career of careers) {
@@ -55,10 +52,8 @@ export const getCareerRecommendations = async (req, res) => {
       });
     }
 
-    // 4️⃣ Sort by score
     recommendations.sort((a, b) => b.score - a.score);
 
-    // 5️⃣ Optional: Save top 3 recommendations
     const top3 = recommendations.slice(0, 3);
     for (const rec of top3) {
       await supabase.from("recommendation").insert([
@@ -77,3 +72,36 @@ export const getCareerRecommendations = async (req, res) => {
     res.status(500).json({ error: "Error generating recommendations" });
   }
 };
+
+// Add a new career (Admin functionality)
+const addCareer = async (req, res) => {
+  try {
+    const { name, description, req_qualification, category, learning_resources, salary_range } = req.body;
+
+    if (!name || !description || !req_qualification) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const { data, error } = await supabase
+      .from("career")
+      .insert([
+        {
+          name,
+          description,
+          req_qualification,
+          category,
+          learning_resources,
+          salary_range,
+        },
+      ]);
+
+    if (error) throw error;
+
+    res.status(201).json({ message: "Career added successfully", data });
+  } catch (error) {
+    console.error("Add Career Error:", error.message);
+    res.status(500).json({ error: "Error adding career" });
+  }
+};
+
+module.exports = { getCareerRecommendations, addCareer };
