@@ -5,7 +5,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.get('/recommend', protect, getCareerRecommendations);
+router.get('/recommend',  getCareerRecommendations);
 router.post('/', addCareer); 
 
 module.exports = router;

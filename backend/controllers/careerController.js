@@ -10,9 +10,10 @@ const similarity = (a, b) => {
 
 const getCareerRecommendations = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Not authorized, no user id" });
 
-    // Fetch user
+    // 1️⃣ Fetch user
     const { data: user, error: userError } = await supabase
       .from("users")
       .select("*")
@@ -22,20 +23,23 @@ const getCareerRecommendations = async (req, res) => {
     if (userError || !user)
       return res.status(404).json({ error: "User not found" });
 
-    // Fetch all careers
+    // 2️⃣ Fetch all careers
     const { data: careers, error: careerError } = await supabase
       .from("career")
       .select("*");
 
     if (careerError) throw careerError;
 
+    if (!careers || careers.length === 0)
+      return res.status(200).json({ user: user.name, recommendations: [] });
+
+    // 3️⃣ Compute match score safely
     const recommendations = careers.map((career) => {
-      const skillMatch = career.skill_id === user.skill_id ? 1 : 0;
-      const subjectMatch = career.subject_id === user.subject_id ? 1 : 0;
+      const skillMatch = career.skill_id && user.skill_id && career.skill_id === user.skill_id ? 1 : 0;
+      const subjectMatch = career.subject_id && user.subject_id && career.subject_id === user.subject_id ? 1 : 0;
       const qualificationMatch = similarity(user.qualification, career.req_qualification);
       const preferenceMatch = similarity(user.preference, career.category);
 
-      // Even if skill/subject don't match, we ensure some score
       const score =
         skillMatch * 0.4 +
         subjectMatch * 0.3 +
@@ -45,35 +49,23 @@ const getCareerRecommendations = async (req, res) => {
       return {
         career_id: career.career_id,
         name: career.name,
-        description: career.description,
-        category: career.category,
-        salary_range: career.salary_range,
+        description: career.description || "",
+        category: career.category || "",
+        salary_range: career.salary_range || 0,
         score: (score * 100).toFixed(2),
+        req_qualification: career.req_qualification || "",
       };
     });
 
-    // Sort descending by score
+    // 4️⃣ Sort and pick top 3
     recommendations.sort((a, b) => b.score - a.score);
-
-    // Get top 3 recommendations
     const top3 = recommendations.slice(0, 3);
 
-    // Optional: Upsert into recommendation table to avoid duplicates
-    for (const rec of top3) {
-      await supabase
-        .from("recommendation")
-        .upsert({
-          user_id: userId,
-          career_id: rec.career_id,
-          score: rec.score,
-          req_qualification: user.qualification,
-        },
-        { onConflict: ["user_id", "career_id"] });
-    }
-
+    // 5️⃣ Return recommendations (skip upsert for now)
     res.json({ user: user.name, recommendations: top3 });
+
   } catch (error) {
-    console.error("Career Logic Error:", error.message);
+    console.error("Career Logic Error:", error);
     res.status(500).json({ error: "Error generating recommendations" });
   }
 };
