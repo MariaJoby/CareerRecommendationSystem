@@ -1,10 +1,11 @@
 // careerRoutes.js
 const express = require('express');
-const { getCareerRecommendations } = require('../controllers/careerController');
+const { getCareerRecommendations,addCareer } = require('../controllers/careerController');
 const { protect } = require('../middleware/authMiddleware'); 
 
 const router = express.Router();
 
-router.get('/recommend', protect, getCareerRecommendations); 
+router.get('/recommend', protect, getCareerRecommendations);
+router.post('/', addCareer); 
 
 module.exports = router;
