@@ -1,35 +1,36 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../context/UserContext"; // make sure path is correct
+import { UserContext } from "../context/UserContext";
 
 export default function CareerRecommendations() {
   const { user } = useContext(UserContext);
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy recommendations (replace later with DB/API data)
-  const recommendations = [
-    {
-      id: 1,
-      career: "Software Engineer",
-      description: "Design and build scalable software applications.",
-      qualification: "B.Tech / B.Sc. in Computer Science",
-      matchScore: 92,
-    },
-    {
-      id: 2,
-      career: "Data Scientist",
-      description:
-        "Analyze data to uncover insights and build predictive models.",
-      qualification: "Degree in CS, Stats, or related field",
-      matchScore: 88,
-    },
-    {
-      id: 3,
-      career: "UX Designer",
-      description: "Create intuitive and user-friendly product experiences.",
-      qualification: "Design or HCI background",
-      matchScore: 85,
-    },
-  ];
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true);
+      const token = user?.token; // If using JWT or Supabase auth session
+      const res = await fetch("http://localhost:5000/api/careers/recommend", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // if using auth
+        },
+      });
+
+      const data = await res.json();
+      setRecommendations(data.recommendations || []);
+    } catch (err) {
+      console.error("Error fetching recommendations:", err);
+      alert("Failed to fetch recommendations. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -46,42 +47,42 @@ export default function CareerRecommendations() {
         </Link>
       </nav>
 
-      {/* Recommendations Section */}
       <main className="flex-grow px-8 py-12">
         <h2 className="text-4xl font-bold text-gray-800 text-center mb-10">
           Recommended Careers for {user?.name || "User"}
         </h2>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {recommendations.map((rec) => (
-            <div
-              key={rec.id}
-              className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300"
-            >
-              <h3 className="text-2xl font-semibold text-indigo-600 mb-2">
-                {rec.career}
-              </h3>
-              <p className="text-gray-700 mb-3">{rec.description}</p>
-              <p className="text-sm text-gray-500 mb-2">
-                <span className="font-medium">Qualification:</span>{" "}
-                {rec.qualification}
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                <span className="font-medium">Match Score:</span>{" "}
-                {rec.matchScore}%
-              </p>
-              <Link
-                to="/learning-resource"
-                className="block text-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300"
+        {loading ? (
+          <p className="text-center text-gray-600">Loading recommendations...</p>
+        ) : recommendations.length === 0 ? (
+          <p className="text-center text-gray-600">No recommendations available yet.</p>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {recommendations.map((rec) => (
+              <div
+                key={rec.career_id}
+                className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300"
               >
-                View Learning Resources
-              </Link>
-            </div>
-          ))}
-        </div>
+                <h3 className="text-2xl font-semibold text-indigo-600 mb-2">{rec.name}</h3>
+                <p className="text-gray-700 mb-3">{rec.description}</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  <span className="font-medium">Qualification:</span> {rec.req_qualification}
+                </p>
+                <p className="text-sm text-gray-500 mb-4">
+                  <span className="font-medium">Match Score:</span> {rec.score}%
+                </p>
+                <Link
+                  to="/learning-resource"
+                  className="block text-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition duration-300"
+                >
+                  View Learning Resources
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      {/* Footer */}
       <footer className="bg-white bg-opacity-80 backdrop-blur-md shadow-inner py-4 text-center text-gray-500 text-sm">
         © {new Date().getFullYear()} CareerPath Finder. All rights reserved.
       </footer>
