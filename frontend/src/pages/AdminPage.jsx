@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export default function AdminAddCareer() {
+
+  const navigate = useNavigate();
+
   const [career, setCareer] = useState({
     name: "",
     description: "",
@@ -82,11 +87,13 @@ export default function AdminAddCareer() {
     }
   };
 
-  const toggleSelection = (array, value) => {
-    return array.includes(value)
-      ? array.filter((v) => v !== value)
-      : [...array, value];
+  const handleLogout = () => {
+    // Optionally clear tokens if you use them
+    // localStorage.removeItem("adminToken");
+  
+    navigate("/"); // Redirect to home page
   };
+    
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -95,6 +102,13 @@ export default function AdminAddCareer() {
         <h1 className="text-3xl md:text-4xl font-extrabold text-indigo-700 tracking-wide">
           CareerPath Admin
         </h1>
+        <button
+  onClick={handleLogout}
+  className="px-5 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition duration-300"
+>
+  Logout
+</button>
+
       </nav>
 
       <main className="flex-grow flex items-center justify-center px-6 py-12">
