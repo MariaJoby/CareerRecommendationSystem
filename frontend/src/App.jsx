@@ -13,6 +13,8 @@ import CareerRecommendations from "./pages/CareerRecommendations";
 import LearningResource from "./pages/LearningResource";
 import NewRecommendation from "./pages/NewRecommendation";
 import AdminPage from "./pages/AdminPage";
+import Feedback from "./pages/Feedback"; // adjust path if needed
+
 function App() {
   return (
     <Router>
@@ -66,6 +68,8 @@ function App() {
         </ProtectedRoute>
       }
     />
+    <Route path="/feedback" element={<Feedback />} />
+
   </Routes>
 </Router>
 

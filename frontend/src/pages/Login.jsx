@@ -9,40 +9,63 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-const handleLogin = async (e) => {
-  e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  const adminEmail = "admin@example.com";
-  const adminPassword = "Admin@123";
+    const adminEmail = "admin@example.com";
+    const adminPassword = "Admin@123";
 
-  // Check if admin credentials entered
-  if (email === adminEmail && password === adminPassword) {
-    alert("Welcome Admin!");
-    navigate("/admin");
-    return; // stop here (don’t call Supabase)
-  }
-
-  // Otherwise, authenticate normal user with Supabase
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      alert(error.message);
-    } else {
-      setUser(data.user);
-      alert(`Welcome ${data.user.email}!`);
-      navigate("/dashboard");
+    // Check if admin credentials entered
+    if (email === adminEmail && password === adminPassword) {
+      alert("Welcome Admin!");
+      navigate("/admin");
+      return; // stop here (don’t call Supabase)
     }
-  } catch (err) {
-    console.error(err);
-    alert("Server error. Try again later.");
-  }
-};
 
+    // Otherwise, authenticate normal user with Supabase
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
+      if (error) {
+        alert(error.message);
+      } else {
+        // Fetch user info from the 'profiles' table
+        const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user.id)  // use the auth user id
+        .maybeSingle();
+      
+      if (profileError || !profileData) {
+        alert("Failed to get profile details. Try again.");
+        return;
+      }
+      
+      // Store in context
+      setUser({
+        id: profileData.id,      // UUID from profiles table
+        name: profileData.name,
+        email: profileData.email,
+        education: profileData.education_level,
+        gpa: profileData.gpa,
+        skills: profileData.skills,
+        subjects: profileData.subjects,
+      });
+      
+
+      alert(`Welcome ${profileData.name}!`);
+
+navigate("/dashboard");
+
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">

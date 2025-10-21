@@ -68,11 +68,12 @@ export default function Dashboard() {
             View Recommendations
           </Link>
           <Link
-            to="/new-recommendation"
-            className="px-8 py-4 bg-green-500 text-white text-lg rounded-lg shadow-md hover:bg-green-600 transition duration-300"
-          >
-            Generate New Recommendation
-          </Link>
+  to="/feedback"
+  className="px-8 py-4 bg-green-500 text-white text-lg rounded-lg shadow-md hover:bg-green-600 transition duration-300"
+>
+  Feedback
+</Link>
+
         </div>
       </main>
 
