@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import supabase from "../supabaseClient"; // ✅ Supabase connection
+import Select from "react-select";
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -156,17 +157,21 @@ export default function EditProfile() {
             </div>
 
             {/* Education Level */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Education Level</label>
-              <input
-                type="text"
-                name="educationLevel"
-                value={profile.educationLevel}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Education Level</label>
+          <select
+            name="educationLevel"
+            value={profile.educationLevel}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            required
+          >
+            <option value="">Select Education Level</option>
+            <option value="High School">High School</option>
+            <option value="Undergraduate">Undergraduate</option>
+            <option value="Graduate">Graduate</option>
+          </select>
+      </div>
             {/* GPA */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">GPA</label>
@@ -180,38 +185,47 @@ export default function EditProfile() {
             </div>
 
             {/* Skills */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Skills</label>
-              <select
-                multiple
-                value={profile.skills}
-                onChange={(e) => handleMultiSelect(e, "skills")}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 h-32"
-              >
-                {allSkills.map((skill, i) => (
-                  <option key={i} value={skill}>
-                    {skill}
-                  </option>
-                ))}
-              </select>
-            </div>
-
+<div>
+  <label className="block text-gray-700 font-medium mb-2">Skills</label>
+  <Select
+    isMulti
+    name="skills"
+    options={allSkills.map((skill) => ({ value: skill, label: skill }))}
+    value={profile.skills.map((skill) => ({ value: skill, label: skill }))}
+    onChange={(selectedOptions) =>
+      setProfile({
+        ...profile,
+        skills: selectedOptions.map((opt) => opt.value),
+      })
+    }
+    className="basic-multi-select"
+    classNamePrefix="select"
+  />
+</div>
             {/* Subjects */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Subjects</label>
-              <select
-                multiple
-                value={profile.subjects}
-                onChange={(e) => handleMultiSelect(e, "subjects")}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 h-32"
-              >
-                {allSubjects.map((subject, i) => (
-                  <option key={i} value={subject}>
-                    {subject}
-                  </option>
-                ))}
-              </select>
-            </div>
+<div>
+  <label className="block text-gray-700 font-medium mb-2">Subjects</label>
+  <Select
+    isMulti
+    name="subjects"
+    options={allSubjects.map((subject) => ({
+      value: subject,
+      label: subject,
+    }))}
+    value={profile.subjects.map((subject) => ({
+      value: subject,
+      label: subject,
+    }))}
+    onChange={(selectedOptions) =>
+      setProfile({
+        ...profile,
+        subjects: selectedOptions.map((opt) => opt.value),
+      })
+    }
+    className="basic-multi-select"
+    classNamePrefix="select"
+  />
+</div>
 
             {/* Submit */}
             <div className="flex justify-center">
