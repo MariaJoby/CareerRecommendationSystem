@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function AdminAddCareer() {
   const [career, setCareer] = useState({
@@ -6,15 +6,47 @@ export default function AdminAddCareer() {
     description: "",
     req_qualification: "",
     category: "",
+    salary_range: "",
     learning_resources: "",
+    skills: [],    // Array of skill_ids
+    subjects: [],  // Array of subject_ids
   });
+
+  const [skills, setSkills] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+
+  // Fetch skills & subjects on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const skillRes = await fetch("http://localhost:5000/api/careers/skills");
+        const subjectRes = await fetch("http://localhost:5000/api/careers/subjects");
+
+        const skillData = await skillRes.json();
+        const subjectData = await subjectRes.json();
+
+        setSkills(skillData);
+        setSubjects(subjectData);
+      } catch (error) {
+        console.error("Error fetching skills/subjects:", error);
+        alert("Failed to load skills or subjects");
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic validation
-    if (!career.name || !career.description || !career.req_qualification) {
-      alert("Please fill all required fields");
+    if (
+      !career.name ||
+      !career.description ||
+      !career.req_qualification ||
+      career.skills.length === 0 ||
+      career.subjects.length === 0
+    ) {
+      alert("Please fill all required fields and select skills & subjects");
       return;
     }
 
@@ -36,7 +68,10 @@ export default function AdminAddCareer() {
           description: "",
           req_qualification: "",
           category: "",
+          salary_range: "",
           learning_resources: "",
+          skills: [],
+          subjects: [],
         });
       } else {
         alert(result.error || "Failed to add career");
@@ -45,6 +80,12 @@ export default function AdminAddCareer() {
       console.error(err);
       alert("Server error. Try again later.");
     }
+  };
+
+  const toggleSelection = (array, value) => {
+    return array.includes(value)
+      ? array.filter((v) => v !== value)
+      : [...array, value];
   };
 
   return (
@@ -68,7 +109,9 @@ export default function AdminAddCareer() {
               type="text"
               placeholder="Career Name"
               value={career.name}
-              onChange={(e) => setCareer({ ...career, name: e.target.value })}
+              onChange={(e) =>
+                setCareer({ ...career, name: e.target.value })
+              }
               className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
@@ -87,7 +130,7 @@ export default function AdminAddCareer() {
             {/* Qualification */}
             <input
               type="text"
-              placeholder="Qualification"
+              placeholder="Required Qualification"
               value={career.req_qualification}
               onChange={(e) =>
                 setCareer({ ...career, req_qualification: e.target.value })
@@ -95,7 +138,7 @@ export default function AdminAddCareer() {
               className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
-           
+
             {/* Category */}
             <input
               type="text"
@@ -106,17 +149,65 @@ export default function AdminAddCareer() {
               }
               className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             />
-            {/* Salary Range */}
-<input
-  type="number"
-  placeholder="Salary Range (in INR)"
-  value={career.salary_range || ""}
-  onChange={(e) =>
-    setCareer({ ...career, salary_range: Number(e.target.value) })
-  }
-  className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-/>
 
+            {/* Salary Range */}
+            <input
+              type="number"
+              placeholder="Salary Range (in INR)"
+              value={career.salary_range || ""}
+              onChange={(e) =>
+                setCareer({
+                  ...career,
+                  salary_range: Number(e.target.value),
+                })
+              }
+              className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            />
+
+            {/* Skills Multi-Select */}
+            <div className="space-y-2">
+              <p className="font-semibold">Select Skills</p>
+              {skills.map((s) => (
+                <label key={s.skill_id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={s.skill_id}
+                    checked={career.skills.includes(s.skill_id)}
+                    onChange={() =>
+                      setCareer({
+                        ...career,
+                        skills: toggleSelection(career.skills, s.skill_id),
+                      })
+                    }
+                  />
+                  {s.name}
+                </label>
+              ))}
+            </div>
+
+            {/* Subjects Multi-Select */}
+            <div className="space-y-2">
+              <p className="font-semibold">Select Subjects</p>
+              {subjects.map((sub) => (
+                <label key={sub.subject_id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    value={sub.subject_id}
+                    checked={career.subjects.includes(sub.subject_id)}
+                    onChange={() =>
+                      setCareer({
+                        ...career,
+                        subjects: toggleSelection(
+                          career.subjects,
+                          sub.subject_id
+                        ),
+                      })
+                    }
+                  />
+                  {sub.sub_name}
+                </label>
+              ))}
+            </div>
 
             {/* Learning Resources */}
             <textarea
