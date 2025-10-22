@@ -5,7 +5,6 @@ export default function CareerRecommendations() {
   const [recommendations, setRecommendations] = useState([]);
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
@@ -34,7 +33,6 @@ export default function CareerRecommendations() {
         setLoading(false);
       }
     };
-
     fetchRecommendations();
   }, []);
 
