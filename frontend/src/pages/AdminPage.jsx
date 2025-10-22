@@ -94,7 +94,14 @@ export default function AdminAddCareer() {
     navigate("/"); // Redirect to home page
   };
     
-
+  const toggleSelection = (array, id) => {
+    if (array.includes(id)) {
+      return array.filter(item => item !== id); // remove if exists
+    } else {
+      return [...array, id]; // add if not exists
+    }
+  };
+  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       {/* Navbar */}

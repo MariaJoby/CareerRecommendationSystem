@@ -7,19 +7,51 @@ export default function CareerRecommendations() {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Dummy recommendations
+  const dummyRecommendations = [
+    {
+      career_id: 101,
+      name: "Software Engineer",
+      description: "Develop and maintain software applications.",
+      req_qualification: "B.Tech in CS",
+      score: 95,
+    },
+    {
+      career_id: 102,
+      name: "Data Scientist",
+      description: "Analyze and model data to extract insights.",
+      req_qualification: "B.Tech / M.Tech in CS",
+      score: 90,
+    },
+    {
+      career_id: 103,
+      name: "Web Developer",
+      description: "Build and maintain websites using modern technologies.",
+      req_qualification: "B.Tech / Diploma",
+      score: 85,
+    },
+  ];
+
   const fetchRecommendations = async () => {
     try {
       setLoading(true);
-      const token = user?.token; // If using JWT or Supabase auth session
+
+      // Uncomment this to fetch from backend
+      /*
+      const token = user?.token;
       const res = await fetch("http://localhost:5000/api/careers/recommend", {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // if using auth
+          Authorization: `Bearer ${token}`,
         },
       });
 
       const data = await res.json();
       setRecommendations(data.recommendations || []);
+      */
+
+      // For testing: use dummy recommendations
+      setRecommendations(dummyRecommendations);
     } catch (err) {
       console.error("Error fetching recommendations:", err);
       alert("Failed to fetch recommendations. Try again.");
