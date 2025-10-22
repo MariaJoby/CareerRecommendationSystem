@@ -53,8 +53,9 @@ export default function Login() {
         gpa: profileData.gpa,
         skills: profileData.skills,
         subjects: profileData.subjects,
+        token: data.session?.access_token || null,
       });
-      
+      localStorage.setItem("userId", profileData.id);
 
       alert(`Welcome ${profileData.name}!`);
 

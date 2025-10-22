@@ -39,6 +39,13 @@ export default function AdminAddCareer() {
     };
     fetchData();
   }, []);
+const toggleSelection = (arr, value) => {
+  if (arr.includes(value)) {
+    return arr.filter((v) => v !== value);
+  } else {
+    return [...arr, value];
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,50 +185,57 @@ export default function AdminAddCareer() {
               className="w-full px-4 py-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             />
 
-            {/* Skills Multi-Select */}
-            <div className="space-y-2">
-              <p className="font-semibold">Select Skills</p>
-              {skills.map((s) => (
-                <label key={s.skill_id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    value={s.skill_id}
-                    checked={career.skills.includes(s.skill_id)}
-                    onChange={() =>
-                      setCareer({
-                        ...career,
-                        skills: toggleSelection(career.skills, s.skill_id),
-                      })
-                    }
-                  />
-                  {s.name}
-                </label>
-              ))}
-            </div>
+           {/* Skills Multi-Select */}
+<div className="space-y-2">
+  <p className="font-semibold">Select Skills</p>
+  {skills.map((s) => (
+    <div key={s.skill_id} className="flex items-center gap-2">
+      <input
+        id={`skill-${s.skill_id}`}
+        type="checkbox"
+        value={s.skill_name} // send name, not id
+        checked={career.skills.includes(s.skill_name)}
+        onChange={() =>
+          setCareer({
+            ...career,
+            skills: toggleSelection(career.skills, s.skill_name),
+          })
+        }
+        className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+      />
+      <label htmlFor={`skill-${s.skill_id}`} className="text-gray-700">
+        {s.skill_name}
+      </label>
+    </div>
+  ))}
+</div>
 
-            {/* Subjects Multi-Select */}
-            <div className="space-y-2">
-              <p className="font-semibold">Select Subjects</p>
-              {subjects.map((sub) => (
-                <label key={sub.subject_id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    value={sub.subject_id}
-                    checked={career.subjects.includes(sub.subject_id)}
-                    onChange={() =>
-                      setCareer({
-                        ...career,
-                        subjects: toggleSelection(
-                          career.subjects,
-                          sub.subject_id
-                        ),
-                      })
-                    }
-                  />
-                  {sub.sub_name}
-                </label>
-              ))}
-            </div>
+{/* Subjects Multi-Select */}
+<div className="space-y-2">
+  <p className="font-semibold">Select Subjects</p>
+  {subjects.map((sub) => (
+    <div key={sub.subject_id} className="flex items-center gap-2">
+      <input
+        id={`subject-${sub.subject_id}`}
+        type="checkbox"
+        value={sub.subject_name} // send name
+        checked={career.subjects.includes(sub.subject_name)}
+        onChange={() =>
+          setCareer({
+            ...career,
+            subjects: toggleSelection(career.subjects, sub.subject_name),
+          })
+        }
+        className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+      />
+      <label htmlFor={`subject-${sub.subject_id}`} className="text-gray-700">
+        {sub.subject_name}
+      </label>
+    </div>
+  ))}
+</div>
+
+            
 
             {/* Learning Resources */}
             <textarea
